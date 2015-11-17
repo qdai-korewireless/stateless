@@ -13,8 +13,8 @@ namespace Stateless
 
             internal TState Destination { get { return _destination; } }
 
-            public TransitioningTriggerBehaviour(TTrigger trigger, TState destination, Func<bool> guard)
-                : base(trigger, guard)
+            public TransitioningTriggerBehaviour(TTrigger trigger, TState destination, Func<bool> guard,string label="")
+                : base(trigger, guard,label)
             {
                 _destination = destination;
             }

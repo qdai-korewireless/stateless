@@ -32,10 +32,14 @@ namespace Stateless
                             destination = "unknownDestination_" + unknownDestinations.Count;
                             unknownDestinations.Add(destination);
                         }
+                        bool hasLabel = !string.IsNullOrEmpty(behaviour.Label);
+                        string labelFormat = hasLabel
+                            ? string.Format(" {0} -> {1} [label=\"{2}\"];",source,destination,behaviour.Label)
+                            :string.Format( " {0} -> {1} [label=\"{2} [{3}]\"];",source,destination,behaviour.Trigger,behaviour.Guard.Method.Name);
 
                         string line = (behaviour.Guard.Method.DeclaringType.Namespace.Equals("Stateless")) ?
-                            string.Format(" {0} -> {1} [label=\"{2}\"];", source, destination, behaviour.Trigger) :
-                            string.Format(" {0} -> {1} [label=\"{2} [{3}]\"];", source, destination, behaviour.Trigger, behaviour.Guard.Method.Name);
+                            string.Format(" {0} -> {1} [label=\"{2}\"];", source, destination, hasLabel ? behaviour.Label : behaviour.Trigger.ToString()) :
+                            labelFormat;
 
                         lines.Add(line);
                     }

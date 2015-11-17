@@ -28,11 +28,12 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger.</param>
             /// <param name="destinationState">The state that the trigger will cause a
             /// transition to.</param>
+            /// <param name="label">label</param>
             /// <returns>The reciever.</returns>
-            public StateConfiguration Permit(TTrigger trigger, TState destinationState)
+            public StateConfiguration Permit(TTrigger trigger, TState destinationState,string label="")
             {
                 EnforceNotIdentityTransition(destinationState);
-                return InternalPermit(trigger, destinationState);
+                return InternalPermit(trigger, destinationState,label);
             }
 
             /// <summary>
@@ -48,6 +49,22 @@ namespace Stateless
             {
                 EnforceNotIdentityTransition(destinationState);
                 return InternalPermitIf(trigger, destinationState, guard);
+            }
+
+            /// <summary>
+            /// Accept the specified trigger and transition to the destination state.
+            /// </summary>
+            /// <param name="trigger">The accepted trigger.</param>
+            /// <param name="destinationState">The state that the trigger will cause a
+            /// transition to.</param>
+            /// <param name="guard">Function that must return true in order for the
+            /// trigger to be accepted.</param>
+            /// <param name="label">label on line</param>
+            /// <returns>The reciever.</returns>
+            public StateConfiguration PermitIf(TTrigger trigger, TState destinationState, Func<bool> guard,string label)
+            {
+                EnforceNotIdentityTransition(destinationState);
+                return InternalPermitIf(trigger, destinationState, guard,label);
             }
 
             /// <summary>
@@ -72,14 +89,15 @@ namespace Stateless
             /// <param name="trigger">The accepted trigger.</param>
             /// <param name="guard">Function that must return true in order for the
             /// trigger to be accepted.</param>
+            /// <param name="label">label</param>
             /// <returns>The reciever.</returns>
             /// <remarks>
             /// Applies to the current state only. Will not re-execute superstate actions, or
             /// cause actions to execute transitioning between super- and sub-states.
             /// </remarks>
-            public StateConfiguration PermitReentryIf(TTrigger trigger, Func<bool> guard)
+            public StateConfiguration PermitReentryIf(TTrigger trigger, Func<bool> guard,string label = "")
             {
-                return InternalPermitIf(trigger, _representation.UnderlyingState, guard);
+                return InternalPermitIf(trigger, _representation.UnderlyingState, guard,label);
             }
             /// <summary>
             /// Ignore the specified trigger when in the configured state.
@@ -459,15 +477,15 @@ namespace Stateless
                 }
             }
 
-            StateConfiguration InternalPermit(TTrigger trigger, TState destinationState)
+            StateConfiguration InternalPermit(TTrigger trigger, TState destinationState,string label="")
             {
-                return InternalPermitIf(trigger, destinationState, () => true);
+                return InternalPermitIf(trigger, destinationState, () => true,label);
             }
 
-            StateConfiguration InternalPermitIf(TTrigger trigger, TState destinationState, Func<bool> guard)
+            StateConfiguration InternalPermitIf(TTrigger trigger, TState destinationState, Func<bool> guard,string label = "")
             {
                 Enforce.ArgumentNotNull(guard, "guard");
-                _representation.AddTriggerBehaviour(new TransitioningTriggerBehaviour(trigger, destinationState, guard));
+                _representation.AddTriggerBehaviour(new TransitioningTriggerBehaviour(trigger, destinationState, guard,label));
                 return this;                
             }
 
